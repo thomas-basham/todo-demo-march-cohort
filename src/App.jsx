@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -13,51 +13,71 @@ const client = new DynamoDBClient({
     secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY,
   },
 });
+
 const docClient = DynamoDBDocumentClient.from(client);
 
-async function scanTodos() {
-  const { Items } = await docClient.send(
-    new ScanCommand({ TableName: "Todo" })
-  );
-  return Items || [];
-}
+const TABLE_NAME = "Todo";
 
-async function createTodo(item) {
-  await docClient.send(new PutCommand({ TableName: "Todo", Item: item }));
-}
+function App() {
+  const [todos, setTodos] = useState([]); // the array where scanCommand will save the information
+  const [text, setText] = useState(""); // string that is representing the text that you want to save in the table
 
-export default function App() {
-  const [todos, setTodos] = useState([]);
-  const [text, setText] = useState("");
+  const scanTodos = async () => {
+    try {
+      const command = new ScanCommand({ TableName: TABLE_NAME });
+      const response = await docClient.send(command);
+      console.log(response);
+      setTodos(response.Items);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
+  const createTodo = async () => {
+    const item = {
+      id: Date.now().toString(),
+      Text: text,
+      IsComplete: false,
+    };
+
+    const command = new PutCommand({ TableName: "Todo", Item: item });
+    const response = await docClient.send(command);
+
+    setTodos([...todos, item]);
+    console.log(response);
+  };
+
+  // The useEffect hook is called every time the component is showed to the user
+  // onload event on html
   useEffect(() => {
-    scanTodos().then(setTodos);
+    scanTodos();
   }, []);
 
-  const handleAdd = async () => {
-    if (!text.trim()) return;
-    const newItem = { id: Date.now().toString(), text, completed: false };
-    await createTodo(newItem);
-    setTodos((prev) => [...prev, newItem]);
-    setText("");
+  const changeHandlerText = (event) => {
+    const data = event.target.value;
+    setText(data);
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Todo App</h1>
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="New todo"
-        style={{ marginRight: 8 }}
-      />
-      <button onClick={handleAdd}>Add</button>
+    <>
+      <div>
+        <h1>Todo App</h1>
+        <input
+          value={text}
+          onChange={changeHandlerText}
+          style={{ marginRight: 8 }}
+        />
 
-      <ul style={{ marginTop: 16 }}>
-        {todos.map((t) => (
-          <li style={{color: "white"}} key={t.id}>{t.Text}</li>
-        ))}
-      </ul>
-    </div>
+        <button onClick={createTodo}>Send Data</button>
+
+        <ul style={{ marginTop: 16 }}>
+          {todos.map((t) => (
+            <li key={t.id}>{t.Text}</li>
+          ))}
+        </ul>
+      </div>
+    </>
   );
 }
+
+export default App;
