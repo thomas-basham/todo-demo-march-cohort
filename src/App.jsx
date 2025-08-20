@@ -1,56 +1,22 @@
 import { useState, useEffect } from "react";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  ScanCommand,
-  PutCommand,
-} from "@aws-sdk/lib-dynamodb";
-
-const client = new DynamoDBClient({
-  region: import.meta.env.VITE_AWS_REGION,
-  credentials: {
-    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY,
-  },
-});
-
-const docClient = DynamoDBDocumentClient.from(client);
-
-const TABLE_NAME = "Todo";
+import { scanTodos, createTodo } from "./utils/dynamo";
+import { IoTrashOutline } from "react-icons/io5";
+import { HiOutlinePencilSquare } from "react-icons/hi2";
 
 function App() {
   const [todos, setTodos] = useState([]); // the array where scanCommand will save the information
   const [text, setText] = useState(""); // string that is representing the text that you want to save in the table
-
-  const scanTodos = async () => {
-    try {
-      const command = new ScanCommand({ TableName: TABLE_NAME });
-      const response = await docClient.send(command);
-      console.log(response);
-      setTodos(response.Items);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
-
-  const createTodo = async () => {
-    const item = {
-      id: Date.now().toString(),
-      Text: text,
-      IsComplete: false,
-    };
-
-    const command = new PutCommand({ TableName: "Todo", Item: item });
-    const response = await docClient.send(command);
-
-    setTodos([...todos, item]);
-    console.log(response);
-  };
+  const [todoToEdit, setTodoToEdit] = useState({});
 
   // The useEffect hook is called every time the component is showed to the user
   // onload event on html
   useEffect(() => {
-    scanTodos();
+    async function getTodos() {
+      const scanned = await scanTodos();
+      setTodos(scanned);
+    }
+
+    getTodos();
   }, []);
 
   const changeHandlerText = (event) => {
@@ -58,9 +24,33 @@ function App() {
     setText(data);
   };
 
+  const handleCreateTodo = async () => {
+    const createdTodo = await createTodo(text);
+
+    setTodos([...todos, createdTodo]);
+    setText("");
+  };
+
+  const deleteTodo = (id) => {
+    const filteredTodos = todos.filter((todo) => {
+      return todo.id != id;
+    });
+
+    setTodos(filteredTodos);
+  };
+
+  const updateTodo = () => {
+    const filteredTodos = todos.filter((todo) => {
+      return todoToEdit.id != todo.id;
+    });
+
+    setTodos([...filteredTodos, todoToEdit]);
+    setTodoToEdit({});
+  };
+
   return (
     <>
-      <div>
+      <div className="todo-div">
         <h1>Todo App</h1>
         <input
           value={text}
@@ -68,12 +58,40 @@ function App() {
           style={{ marginRight: 8 }}
         />
 
-        <button onClick={createTodo}>Send Data</button>
+        <button onClick={() => handleCreateTodo()}>Send Data</button>
 
         <ul style={{ marginTop: 16 }}>
-          {todos.map((t) => (
-            <li key={t.id}>{t.Text}</li>
-          ))}
+          {todos.map((todoElem) =>
+            todoToEdit?.id === todoElem.id ? (
+              <div>
+                <input
+                  value={todoToEdit.Text}
+                  onChange={(event) =>
+                    setTodoToEdit({
+                      id: todoToEdit.id,
+                      Text: event.target.value,
+                      isComplete: todoToEdit.isComplete,
+                    })
+                  }
+                  type="text"
+                  name="edit-input"
+                  id="edit-input"
+                />
+                <button onClick={() => updateTodo()}> Submit</button>
+              </div>
+            ) : (
+              <li key={todoElem.id}>
+                {todoElem.Text}{" "}
+                <HiOutlinePencilSquare
+                  onClick={() => setTodoToEdit(todoElem)}
+                />
+                <IoTrashOutline
+                  className="delete-btn"
+                  onClick={() => deleteTodo(todoElem.id)}
+                />
+              </li>
+            )
+          )}
         </ul>
       </div>
     </>

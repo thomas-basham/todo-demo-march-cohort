@@ -4,17 +4,24 @@ $glaucous: hsla(226, 69%, 63%, 1);
 $jordy-blue: hsla(219, 82%, 76%, 1);
 $columbia-blue: hsla(203, 33%, 86%, 1);
 
-
 body {
   background-color: $jordy-blue;
 }
 
-div {
-  h1{
+.todo-div {
+  h1 {
     font-size: 3rem;
   }
 
   ul {
     font-size: 2rem;
+  }
+
+  svg {
+    cursor: pointer;
+  }
+
+  .delete-btn {
+    color: rgb(163, 3, 3);
   }
 }
