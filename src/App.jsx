@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
-import { scanTodos, createTodo } from "./utils/dynamo";
+import {
+  scanTodos,
+  createTodo,
+  deleteTodoById,
+  updateTodo,
+} from "./utils/dynamo";
 import { IoTrashOutline } from "react-icons/io5";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
-
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
+import { motion } from "motion/react";
 function App() {
   const [todos, setTodos] = useState([]); // the array where scanCommand will save the information
   const [text, setText] = useState(""); // string that is representing the text that you want to save in the table
@@ -31,7 +39,9 @@ function App() {
     setText("");
   };
 
-  const deleteTodo = (id) => {
+  const handleDeleteTodo = async (id) => {
+    await deleteTodoById(id);
+
     const filteredTodos = todos.filter((todo) => {
       return todo.id != id;
     });
@@ -39,12 +49,14 @@ function App() {
     setTodos(filteredTodos);
   };
 
-  const updateTodo = () => {
-    const filteredTodos = todos.filter((todo) => {
-      return todoToEdit.id != todo.id;
-    });
+  const handleUpdateTodo = async () => {
+    // await updateTodo(todoToEdit);
 
-    setTodos([...filteredTodos, todoToEdit]);
+    setTodos((previousTodos) => {
+      return previousTodos.map((todo) => {
+        return todo.id === todoToEdit.id ? todoToEdit : todo;
+      });
+    });
     setTodoToEdit({});
   };
 
@@ -52,44 +64,56 @@ function App() {
     <>
       <div className="todo-div">
         <h1>Todo App</h1>
-        <input
-          value={text}
-          onChange={changeHandlerText}
-          style={{ marginRight: 8 }}
-        />
 
-        <button onClick={() => handleCreateTodo()}>Send Data</button>
+        <Stack spacing={2} direction="row">
+          <TextField
+            value={text}
+            // defaultValue={text}
+            onChange={changeHandlerText}
+            id="outlined-basic"
+            label="What todo?"
+            variant="outlined"
+          />
+
+          <Button variant="contained" onClick={() => handleCreateTodo()}>
+            Create Todo
+          </Button>
+        </Stack>
 
         <ul style={{ marginTop: 16 }}>
           {todos.map((todoElem) =>
             todoToEdit?.id === todoElem.id ? (
-              <div>
+              <div key={todoElem.id}>
                 <input
-                  value={todoToEdit.Text}
+                  value={todoToEdit.TodoText}
                   onChange={(event) =>
                     setTodoToEdit({
                       id: todoToEdit.id,
-                      Text: event.target.value,
-                      isComplete: todoToEdit.isComplete,
+                      TodoText: event.target.value,
+                      IsComplete: todoToEdit.IsComplete,
                     })
                   }
                   type="text"
                   name="edit-input"
                   id="edit-input"
                 />
-                <button onClick={() => updateTodo()}> Submit</button>
+                <button onClick={() => handleUpdateTodo()}> Submit</button>
               </div>
             ) : (
-              <li key={todoElem.id}>
-                {todoElem.Text}{" "}
+              <motion.li
+                key={todoElem.id}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+              >
+                {todoElem.TodoText}{" "}
                 <HiOutlinePencilSquare
                   onClick={() => setTodoToEdit(todoElem)}
                 />
                 <IoTrashOutline
                   className="delete-btn"
-                  onClick={() => deleteTodo(todoElem.id)}
+                  onClick={() => handleDeleteTodo(todoElem.id)}
                 />
-              </li>
+              </motion.li>
             )
           )}
         </ul>
