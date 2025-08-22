@@ -82,5 +82,6 @@ export const updateTodo = async (todo) => {
   });
 
   const { Attributes } = await docClient.send(command);
+  console.log(Attributes);
   return Attributes;
 };

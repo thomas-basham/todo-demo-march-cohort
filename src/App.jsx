@@ -17,7 +17,6 @@ function App() {
   const [todoToEdit, setTodoToEdit] = useState({});
 
   // The useEffect hook is called every time the component is showed to the user
-  // onload event on html
   useEffect(() => {
     async function getTodos() {
       const scanned = await scanTodos();
@@ -80,7 +79,7 @@ function App() {
           </Button>
         </Stack>
 
-        <List dense sx={{ width: "100%", maxWidth: 360 }}>
+        <List dense sx={{ width: "100%" }}>
           {todos.map((todoElem) =>
             todoToEdit?.id === todoElem.id ? (
               <TodoEditor
