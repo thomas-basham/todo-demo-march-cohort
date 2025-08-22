@@ -60,21 +60,27 @@ export const deleteTodoById = async (id) => {
 };
 
 export const updateTodo = async (todo) => {
+  const { id, TodoText, IsComplete } = todo;
+
   const command = new UpdateCommand({
     TableName: TABLE_NAME,
-    Key: {
-      id: todo.id,
-    },
-    UpdateExpression: "SET TodoText = :TodoText, IsComplete = :IsComplete",
-    ExpressionAttributeValues: {
-      ":TodoText": todo.Text,
-      ":IsComplete": todo.IsComplete,
+    Key: { id },
+    UpdateExpression: "SET #TodoText = :TodoText, #IsComplete = :IsComplete",
+
+    // Best practice to use place holders
+    ExpressionAttributeNames: {
+      "#TodoText": "TodoText",
+      "#IsComplete": "IsComplete",
     },
 
-    ReturnValues: "ALL_NEW",
+    ExpressionAttributeValues: {
+      ":TodoText": TodoText,
+      ":IsComplete": IsComplete,
+    },
+
+    // ReturnValues: "ALL_NEW",
   });
 
-  const response = await docClient.send(command);
-  console.log(response);
-  return response;
+  const { Attributes } = await docClient.send(command);
+  return Attributes;
 };

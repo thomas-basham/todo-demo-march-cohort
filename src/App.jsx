@@ -5,12 +5,17 @@ import {
   deleteTodoById,
   updateTodo,
 } from "./utils/dynamo";
-import { IoTrashOutline } from "react-icons/io5";
-import { HiOutlinePencilSquare } from "react-icons/hi2";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import { motion } from "motion/react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
-import { motion } from "motion/react";
+import TodoListItem from "./components/TodoListItem";
+import TodoEditor from "./components/TodoEditor";
 function App() {
   const [todos, setTodos] = useState([]); // the array where scanCommand will save the information
   const [text, setText] = useState(""); // string that is representing the text that you want to save in the table
@@ -50,7 +55,7 @@ function App() {
   };
 
   const handleUpdateTodo = async () => {
-    // await updateTodo(todoToEdit);
+    await updateTodo(todoToEdit);
 
     setTodos((previousTodos) => {
       return previousTodos.map((todo) => {
@@ -83,37 +88,20 @@ function App() {
         <ul style={{ marginTop: 16 }}>
           {todos.map((todoElem) =>
             todoToEdit?.id === todoElem.id ? (
-              <div key={todoElem.id}>
-                <input
-                  value={todoToEdit.TodoText}
-                  onChange={(event) =>
-                    setTodoToEdit({
-                      id: todoToEdit.id,
-                      TodoText: event.target.value,
-                      IsComplete: todoToEdit.IsComplete,
-                    })
-                  }
-                  type="text"
-                  name="edit-input"
-                  id="edit-input"
-                />
-                <button onClick={() => handleUpdateTodo()}> Submit</button>
-              </div>
+              <TodoEditor
+                key={todoToEdit.id + "edit"}
+                todoElem={todoElem}
+                todoToEdit={todoToEdit}
+                setTodoToEdit={setTodoToEdit}
+                handleUpdateTodo={handleUpdateTodo}
+              />
             ) : (
-              <motion.li
+              <TodoListItem
                 key={todoElem.id}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-              >
-                {todoElem.TodoText}{" "}
-                <HiOutlinePencilSquare
-                  onClick={() => setTodoToEdit(todoElem)}
-                />
-                <IoTrashOutline
-                  className="delete-btn"
-                  onClick={() => handleDeleteTodo(todoElem.id)}
-                />
-              </motion.li>
+                todoElem={todoElem}
+                setTodoToEdit={setTodoToEdit}
+                handleDeleteTodo={handleDeleteTodo}
+              />
             )
           )}
         </ul>
