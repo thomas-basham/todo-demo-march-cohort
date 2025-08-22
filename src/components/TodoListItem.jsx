@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { motion } from "motion/react";
 import { IoTrashOutline } from "react-icons/io5";
 import { HiOutlinePencilSquare } from "react-icons/hi2";
 import Checkbox from "@mui/material/Checkbox";
-import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -40,18 +38,6 @@ export default function TodoListItem({
           <ListItemText />
         </ListItemButton>
       </ListItem>
-      {/* <motion.li
-        key={todoElem.id}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-      >
-        {todoElem.TodoText}{" "}
-        <HiOutlinePencilSquare onClick={() => setTodoToEdit(todoElem)} />
-        <IoTrashOutline
-          className="delete-btn"
-          onClick={() => handleDeleteTodo(todoElem.id)}
-        />
-      </motion.li> */}
     </>
   );
 }

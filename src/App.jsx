@@ -6,11 +6,6 @@ import {
   updateTodo,
 } from "./utils/dynamo";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import { motion } from "motion/react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
@@ -85,7 +80,7 @@ function App() {
           </Button>
         </Stack>
 
-        <ul style={{ marginTop: 16 }}>
+        <List dense sx={{ width: "100%", maxWidth: 360 }}>
           {todos.map((todoElem) =>
             todoToEdit?.id === todoElem.id ? (
               <TodoEditor
@@ -104,7 +99,7 @@ function App() {
               />
             )
           )}
-        </ul>
+        </List>
       </div>
     </>
   );
