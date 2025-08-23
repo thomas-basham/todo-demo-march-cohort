@@ -12,9 +12,9 @@ export default function TodoListItem({
   setTodoToEdit,
   handleDeleteTodo,
 }) {
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(todoElem.IsComplete);
 
-  async function setComplete(event) {
+  async function markComplete() {
     setIsChecked(!isChecked);
 
     const todoToEdit = {
@@ -33,11 +33,9 @@ export default function TodoListItem({
           <ListItemIcon>
             <Checkbox
               edge="start"
-              checked={todoElem.IsComplete ?? isChecked}
-              onChange={(event) => setComplete(event)}
+              checked={isChecked}
+              onChange={(event) => markComplete(event)}
               tabIndex={-1}
-              // disableRipple
-              // inputProps={{ "aria-labelledby": labelId }}
             />
           </ListItemIcon>
           <ListItemText>
