@@ -7,6 +7,9 @@ $columbia-blue: hsla(203, 33%, 86%, 1);
 
 body {
   background-color: $jordy-blue;
+  width: 60vw;
+  height: 100vh;
+  margin: 0 auto;
 }
 h1 {
   font-family: "Bebas Neue", sans-serif;
@@ -15,6 +18,7 @@ h1 {
 }
 
 .todo-div {
+
   h1 {
     font-size: 3rem;
   }

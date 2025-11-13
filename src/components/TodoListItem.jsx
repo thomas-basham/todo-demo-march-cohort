@@ -26,6 +26,7 @@ export default function TodoListItem({
     console.log(todoToEdit);
     await updateTodo(todoToEdit);
   }
+
   return (
     <>
       <ListItem disablePadding className="todo-div">
